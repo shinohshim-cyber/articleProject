@@ -41,16 +41,15 @@ public class ArticleView {
     public void showDetail() {
         String name = "";
         String content = "";
-        int commentId = 0;
+        Long commentId = 0L;
         List<CommentDto> commentDtoList = null;
 
         System.out.println("게시글 ID : ");
-        int id = sc.nextInt();
-        List<ArticleDto> list = service.detail(id);
-        if(list.isEmpty()){
+        Long id = sc.nextLong();
+        ArticleDto articleDto = service.detail(id);
+        if(articleDto == null){
             System.out.println("해당 ID가 없습니다.");
         }else {
-            ArticleDto articleDto = list.get(0);
             printArticleOne(articleDto);
             int choice = 0;
             while(true) {
@@ -68,9 +67,9 @@ public class ArticleView {
                         break;
                     case 2:
                         System.out.println("수정할 댓글 ID : ");
-                        commentId = sc.nextInt();
+                        commentId = sc.nextLong();
                         commentDtoList = service.detailComment(commentId);
-                        if(list.isEmpty()){
+                        if(commentDtoList.isEmpty()){
                             System.out.println("해당 댓글 ID가 없습니다.");
                         }else {
                             System.out.printf("수정할 댓글 내용: ");
@@ -82,9 +81,9 @@ public class ArticleView {
                         break;
                     case 3:
                         System.out.println("삭제할 댓글 ID : ");
-                        commentId = sc.nextInt();
+                        commentId = sc.nextLong();
                         commentDtoList = service.detailComment(commentId);
-                        if(list.isEmpty()){
+                        if(commentDtoList.isEmpty()){
                             System.out.println("해당 댓글 ID가 없습니다.");
                         }else {
                             service.commentDelete(commentId);
@@ -138,18 +137,17 @@ public class ArticleView {
 
     public void showDelete() {
         System.out.println("삭제할 게시글 ID : ");
-        int id = sc.nextInt();
+        Long id = sc.nextLong();
         service.delete(id);
     }
 
     public void showUpdate() {
         System.out.println("수정할 게시글 ID : ");
-        int id = sc.nextInt();
-        List<ArticleDto> list = service.detail(id);
-        if(list.isEmpty()){
+        Long id = sc.nextLong();
+        ArticleDto oldData = service.detail(id);
+        if(oldData == null){
             System.out.println("해당 ID가 없습니다.");
         }else {
-            ArticleDto oldData = list.get(0);
             System.out.printf("수정 전 작성자 : " );
             System.out.println(oldData.getName());
             System.out.println("수정 할 작성자 : " );

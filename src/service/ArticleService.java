@@ -26,7 +26,7 @@ public class ArticleService {
         return repository.all();
     }
 
-    public List<ArticleDto> detail(int id) {
+    public ArticleDto detail(Long id) {
         return repository.detail(id);
     }
 
@@ -38,24 +38,20 @@ public class ArticleService {
         }
     }
 
-    public List<CommentDto> detailComment(int commentId) {
+    public List<CommentDto> detailComment(Long commentId) {
        return repository.getComments(commentId);
     }
 
     public void commentUpdate(CommentDto commentDto) {
-        repository.commentUpdate(commentDto);
+        repository.updateComment(commentDto);
     }
 
-    public void commentDelete(int commentId) {
-        int result = repository.commentDelete(commentId);
-        if(result > 0){
-            System.out.println("댓글이 삭제되었습니다.");
-        }
+    public void commentDelete(Long commentId) {
+       repository.deleteComment(commentId);
     }
 
-    public void delete(int id) {
-        int result = repository.delete(id);
-        if(result > 0) {
+    public void delete(Long id) {
+        if(repository.delete(id)) {
             System.out.println("ID : " + id + " 게시글 삭제되었습니다.");
         }
     }
