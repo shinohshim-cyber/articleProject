@@ -1,21 +1,23 @@
 package main;
 
+import crudInterface.CrudInterface;
 import db.DBConn;
 import repository.ArticleRepository;
 import service.ArticleService;
+import service.CommentService;
 import view.ArticleView;
 
-import java.sql.Connection;
 import java.util.Scanner;
 
 public class ArticleMain {
     public static void main(String[] args) {
-        Connection connection = DBConn.getConnection();
 
         Scanner sc = new Scanner(System.in);
-        ArticleRepository repository = new ArticleRepository(connection);
-        ArticleService service = new ArticleService(repository);
-        ArticleView articleView = new ArticleView(sc, service);
+        //CrudInterface repository = new ArticleDAO();
+         CrudInterface repository = new ArticleRepository(); // 메모리 버전
+        ArticleService articleService = new ArticleService(repository);
+        CommentService commentService = new CommentService(repository);
+        ArticleView articleView = new ArticleView(sc, articleService, commentService);
 
         int input;
         while(true){
