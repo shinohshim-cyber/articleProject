@@ -10,7 +10,8 @@ public class ArticleDto {
     private String title;
     private String content;
     private LocalDateTime insertedDate;
-    private List<CommentDto> commentList = new ArrayList<>();
+    private LocalDateTime updatedDate;
+    private List<CommentDto> commentList ;
 
     public ArticleDto(){}
 
@@ -19,6 +20,33 @@ public class ArticleDto {
         this.name = name;
         this.title = title;
         this.content = content;
+    }
+
+    public ArticleDto(Long id, String name, String title, String content, LocalDateTime insertedDate) {
+        this.id = id;
+        this.name = name;
+        this.title = title;
+        this.content = content;
+        this.insertedDate = insertedDate;
+    }
+
+    public ArticleDto(Long id, String name, String title, String content, LocalDateTime insertedDate, LocalDateTime updatedDate) {
+        this.id = id;
+        this.name = name;
+        this.title = title;
+        this.content = content;
+        this.insertedDate = insertedDate;
+        this.updatedDate = updatedDate;
+    }
+
+    public ArticleDto(Long id, String name, String title, String content, LocalDateTime insertedDate, LocalDateTime updatedDate, List<CommentDto> commentList) {
+        this.id = id;
+        this.name = name;
+        this.title = title;
+        this.content = content;
+        this.insertedDate = insertedDate;
+        this.updatedDate = updatedDate;
+        this.commentList = commentList;
     }
 
     public Long getId() {
@@ -67,5 +95,13 @@ public class ArticleDto {
 
     public void setInsertedDate(LocalDateTime insertedDate) {
         this.insertedDate = insertedDate;
+    }
+
+    public LocalDateTime getUpdatedDate() {
+        return updatedDate;
+    }
+
+    public void setUpdatedDate(LocalDateTime updatedDate) {
+        this.updatedDate = updatedDate;
     }
 }

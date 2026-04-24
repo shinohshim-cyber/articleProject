@@ -31,7 +31,7 @@ public class ArticleRepository {
             psmt.setString(1, dto.getName());
             psmt.setString(2, dto.getTitle());
             psmt.setString(3, dto.getContent());
-            psmt.setTimestamp(4 , Timestamp.valueOf(LocalDateTime.now()));
+            psmt.setTimestamp(4 , Timestamp.valueOf(dto.getInsertedDate()));
             result = psmt.executeUpdate();
             psmt.close();
         }catch (Exception e){
@@ -63,7 +63,7 @@ public class ArticleRepository {
             rs.close();
 
             for(ArticleDto list : dtoList){
-                allComment(list.getId(), list.getCommentList());
+                list.setCommentList(getArticleComments(list.getId()));
             }
         }catch (Exception e){
             System.out.println("all Error : " + e.getMessage());
@@ -72,11 +72,12 @@ public class ArticleRepository {
         return dtoList;
     }
 
-    public void allComment(Long article_id, List<CommentDto> list){
+    public  List<CommentDto> getArticleComments(Long article_id){
+        List<CommentDto> list = new ArrayList<>();
         PreparedStatement psmt = null;
         ResultSet rs = null;
         try{
-            String sql = "SELECT * FROM comments WHERE article_id = ?";
+            String sql = "SELECT * FROM comments WHERE article_id=?";
             psmt = conn.prepareStatement(sql);
             psmt.setLong(1, article_id);
             rs = psmt.executeQuery();
@@ -92,6 +93,151 @@ public class ArticleRepository {
             rs.close();
         }catch (Exception e){
             System.out.println("allComment Error : " + e.getMessage());
+        }
+        return list;
+    }
+
+    public List<ArticleDto> detail(int id) {
+        List<ArticleDto> dtoList = new ArrayList<>();
+        PreparedStatement psmt = null;
+        ResultSet rs = null;
+        try{
+            String sql = "SELECT * FROM article WHERE id=?";
+            psmt = conn.prepareStatement(sql);
+            psmt.setLong(1, id);
+            rs = psmt.executeQuery();
+            while(rs.next()){
+                ArticleDto dto = new ArticleDto();
+                dto.setId(rs.getLong("id"));
+                dto.setName(rs.getString("name"));
+                dto.setTitle(rs.getString("title"));
+                dto.setContent(rs.getString("content"));
+                dto.setInsertedDate(rs.getTimestamp("inserted_date").toLocalDateTime());
+                if(rs.getTimestamp("updated_date") != null)
+                    dto.setUpdatedDate(rs.getTimestamp("updated_date").toLocalDateTime());
+                dtoList.add(dto);
+            }
+            psmt.close();
+            rs.close();
+
+            for(ArticleDto list : dtoList){
+                list.setCommentList(getArticleComments(list.getId()));
+            }
+        }catch (Exception e){
+            System.out.println("detail Error : " + e.getMessage());
+        }
+
+        return dtoList;
+    }
+
+    public int insertComment(CommentDto dto) {
+        PreparedStatement psmt = null;
+        int result = 0;
+        try{
+            String sql = "INSERT INTO comments  (name, content, article_id) VALUES (?,?,?)";
+            psmt = conn.prepareStatement(sql);
+            psmt.setString(1, dto.getName());
+            psmt.setString(2, dto.getContent());
+            psmt.setLong(3, dto.getArticleId());
+            result = psmt.executeUpdate();
+            psmt.close();
+        }catch (Exception e){
+            System.out.println("insertComment 오류 : " + e.getMessage() );
+        }
+
+        return result;
+    }
+
+    public List<CommentDto> getComments(int commentId) {
+        List<CommentDto> list = new ArrayList<>();
+        PreparedStatement psmt = null;
+        ResultSet rs = null;
+        try{
+            String sql = "SELECT * FROM comments WHERE comment_id=?";
+            psmt = conn.prepareStatement(sql);
+            psmt.setLong(1, commentId);
+            rs = psmt.executeQuery();
+            while(rs.next()){
+                CommentDto dto = new CommentDto();
+                dto.setCommentId(rs.getLong("comment_id"));
+                dto.setArticleId(rs.getLong("article_id"));
+                dto.setName(rs.getString("name"));
+                dto.setContent(rs.getString("content"));
+                list.add(dto);
+            }
+            psmt.close();
+            rs.close();
+        }catch (Exception e){
+            System.out.println("getComments Error : " + e.getMessage());
+        }
+
+        return list;
+    }
+
+    public void commentUpdate(CommentDto commentDto) {
+        PreparedStatement psmt = null;
+        try{
+            String sql = "UPDATE comments ";
+            sql += "set content = ? ";
+            sql += "WHERE comment_id = ?";
+            psmt = conn.prepareStatement(sql);
+            psmt.setLong(1, commentDto.getCommentId());
+            psmt.executeUpdate();
+            psmt.close();
+        }catch (Exception e){
+            System.out.println("commentUpdate 오류 : " + e.getMessage() );
+        }
+    }
+
+    public int commentDelete(int commentId) {
+        PreparedStatement psmt = null;
+        int result = 0;
+        try{
+            String sql = "DELETE  FROM comments WHERE comment_id = ?";
+            psmt = conn.prepareStatement(sql);
+            psmt.setLong(1, commentId);
+            result = psmt.executeUpdate();
+            psmt.close();
+        }catch (Exception e){
+            System.out.println("commentDelete 오류 : " + e.getMessage() );
+        }
+        return result;
+    }
+
+    public int delete(int id) {
+        PreparedStatement psmt = null;
+        int result = 0;
+        try{
+            String sql = "DELETE  FROM article WHERE id = ?";
+            psmt = conn.prepareStatement(sql);
+            psmt.setLong(1, id);
+            result = psmt.executeUpdate();
+            psmt.close();
+        }catch (Exception e){
+            System.out.println("delete 오류 : " + e.getMessage() );
+        }
+        return result;
+    }
+
+    public void update(ArticleDto updateData) {
+        PreparedStatement psmt = null;
+        try{
+            String sql = "UPDATE article ";
+            sql += "set name = ?, ";
+            sql += "title = ?, ";
+            sql += "content = ?, ";
+            sql += "updated_date = ? ";
+            sql += "WHERE ID = ?";
+            psmt = conn.prepareStatement(sql);
+            psmt.setString(1, updateData.getName());
+            psmt.setString(2, updateData.getTitle());
+            psmt.setString(3, updateData.getContent());
+            psmt.setTimestamp(4, Timestamp.valueOf(updateData.getUpdatedDate()));
+            psmt.setLong(5, updateData.getId());
+            psmt.executeUpdate();
+            psmt.close();
+        }catch (Exception e){
+            System.out.println("UPDATE 오류 : " + e.getMessage() );
         }
     }
 }

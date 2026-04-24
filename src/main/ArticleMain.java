@@ -32,10 +32,13 @@ public class ArticleMain {
                     articleView.showNewArticle();
                     break;
                 case 2:
+                    articleView.showDetail();
                     break;
                 case 3:
+                    articleView.showDelete();
                     break;
                 case 4:
+                    articleView.showUpdate();
                     break;
                 case 5:
                     DBConn.close();
