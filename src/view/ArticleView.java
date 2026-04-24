@@ -1,8 +1,11 @@
 package view;
 
+import crudInterface.CrudInterface;
 import dto.ArticleDto;
 import dto.CommentDto;
+import repository.ArticleRepository;
 import service.ArticleService;
+import service.CommentService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -10,11 +13,13 @@ import java.util.Scanner;
 
 public class ArticleView {
     private final Scanner sc;
-    private final ArticleService service;
+    private final ArticleService articleService;
+    private final CommentService commentService;
 
-    public ArticleView(Scanner sc, ArticleService service) {
+    public ArticleView(Scanner sc, ArticleService service, CommentService commentService) {
         this.sc = sc;
-        this.service = service;
+        this.articleService = service;
+        this.commentService = commentService;
     }
 
     public void showNewArticle() {
@@ -25,12 +30,11 @@ public class ArticleView {
         String title = sc.next();
         System.out.printf("내용: ");
         String content = sc.next();
-
-        service.newArticle(name, title, content);
+        articleService.newArticle(name, title, content, LocalDateTime.now());
     }
 
     public void showAll() {
-        List<ArticleDto> list = service.all();
+        List<ArticleDto> list = articleService.all();
         if (list.isEmpty()) {
             System.out.println("게시글이 없습니다.");
             return;
@@ -46,7 +50,7 @@ public class ArticleView {
 
         System.out.println("게시글 ID : ");
         Long id = sc.nextLong();
-        ArticleDto articleDto = service.detail(id);
+        ArticleDto articleDto = articleService.detail(id);
         if(articleDto == null){
             System.out.println("해당 ID가 없습니다.");
         }else {
@@ -63,30 +67,55 @@ public class ArticleView {
                         name = sc.next();
                         System.out.printf("댓글 내용: ");
                         content = sc.next();
-                        service.commentAdd(articleDto.getId(), name, content);
-                        break;
+                        commentService.commentAdd(articleDto.getId(), name, content);
+                        return;
                     case 2:
-                        System.out.println("수정할 댓글 ID : ");
-                        commentId = sc.nextLong();
-                        commentDtoList = service.detailComment(commentId);
+                        commentDtoList = articleDto.getCommentList();
                         if(commentDtoList.isEmpty()){
-                            System.out.println("해당 댓글 ID가 없습니다.");
-                        }else {
-                            System.out.printf("수정할 댓글 내용: ");
-                            content = sc.next();
-                            CommentDto commentDto = commentDtoList.get(0);
-                            commentDto.setContent(content);
-                            service.commentUpdate(commentDto);
+                            System.out.println("댓글 목록이 없습니다.");
+                        }
+                        else {
+                            System.out.println("수정할 댓글 ID : ");
+                            commentId = sc.nextLong();
+                            CommentDto oldComment = null;
+                            for (CommentDto commentDto : commentDtoList) {
+                                if (commentDto.getCommentId() == commentId) {
+                                    oldComment = commentDto;
+                                    break;
+                                }
+                            }
+                            if (oldComment == null) {
+                                System.out.println("해당 댓글 ID가 없습니다.");
+                            } else {
+                                System.out.printf("수정할 댓글 내용: ");
+                                content = sc.next();
+                                oldComment.setContent(content);
+                                commentService.commentUpdate(oldComment);
+                                return;
+                            }
                         }
                         break;
                     case 3:
-                        System.out.println("삭제할 댓글 ID : ");
-                        commentId = sc.nextLong();
-                        commentDtoList = service.detailComment(commentId);
+                        commentDtoList = articleDto.getCommentList();
                         if(commentDtoList.isEmpty()){
-                            System.out.println("해당 댓글 ID가 없습니다.");
-                        }else {
-                            service.commentDelete(commentId);
+                            System.out.println("댓글 목록이 없습니다.");
+                        }
+                        else {
+                            System.out.println("삭제할 댓글 ID : ");
+                            commentId = sc.nextLong();
+                            CommentDto oldComment = null;
+                            for (CommentDto commentDto : commentDtoList) {
+                                if (commentDto.getCommentId() == commentId) {
+                                    oldComment = commentDto;
+                                    break;
+                                }
+                            }
+                            if (oldComment == null) {
+                                System.out.println("해당 댓글 ID가 없습니다.");
+                            } else {
+                                commentService.commentDelete(articleDto.getId(), commentId);
+                                return;
+                            }
                         }
                         break;
                     case 4:
@@ -138,13 +167,13 @@ public class ArticleView {
     public void showDelete() {
         System.out.println("삭제할 게시글 ID : ");
         Long id = sc.nextLong();
-        service.delete(id);
+        articleService.delete(id);
     }
 
     public void showUpdate() {
         System.out.println("수정할 게시글 ID : ");
         Long id = sc.nextLong();
-        ArticleDto oldData = service.detail(id);
+        ArticleDto oldData = articleService.detail(id);
         if(oldData == null){
             System.out.println("해당 ID가 없습니다.");
         }else {
@@ -164,7 +193,7 @@ public class ArticleView {
             oldData.setTitle(title);
             oldData.setContent(content);
             oldData.setUpdatedDate(LocalDateTime.now());
-            service.update(oldData);
+            articleService.update(oldData);
         }
     }
 }
