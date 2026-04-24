@@ -42,7 +42,7 @@ public class ArticleMain {
                     break;
                 case 5:
                     DBConn.close();
-                    System.out.println("작업이 종료합니다.");
+                    System.out.println("종료합니다.");
                     return;
             }
         }
