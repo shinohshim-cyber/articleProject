@@ -2,7 +2,6 @@ package service;
 
 import crudInterface.CrudInterface;
 import dto.ArticleDto;
-import dto.CommentDto;
 import repository.ArticleRepository;
 
 import java.time.LocalDateTime;
@@ -33,6 +32,8 @@ public class ArticleService {
     public void delete(Long id) {
         if(repository.delete(id)) {
             System.out.println("ID : " + id + " 게시글 삭제되었습니다.");
+        }else{
+            System.out.println("게시글 삭제 실패했습니다.");
         }
     }
 

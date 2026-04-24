@@ -54,13 +54,17 @@ public class ArticleDAO implements CrudInterface {
                 dto.setTitle(rs.getString("title"));
                 dto.setContent(rs.getString("content"));
                 dto.setInsertedDate(rs.getTimestamp("inserted_date").toLocalDateTime());
+                dto.setCommentList(new ArrayList<>());
                 if(rs.getTimestamp("updated_date") != null)
                     dto.setUpdatedDate(rs.getTimestamp("updated_date").toLocalDateTime());
+
             }
             psmt.close();
             rs.close();
 
-            dto.setCommentList(getArticleComments(dto.getId()));
+            if(dto != null) {
+                getArticleComments(dto);
+            }
         }catch (Exception e){
             System.out.println("detail Error : " + e.getMessage());
         }
@@ -91,7 +95,7 @@ public class ArticleDAO implements CrudInterface {
         PreparedStatement psmt = null;
         ResultSet rs = null;
         try{
-            String sql = "SELECT * FROM article";
+            String sql = "SELECT * FROM article ORDER BY id DESC";
             psmt = conn.prepareStatement(sql);
             rs = psmt.executeQuery();
             while(rs.next()){
@@ -102,13 +106,13 @@ public class ArticleDAO implements CrudInterface {
                 dto.setTitle(rs.getString("title"));
                 dto.setContent(rs.getString("content"));
                 dto.setInsertedDate(rs.getTimestamp("inserted_date").toLocalDateTime());
+                dto.setCommentList(new ArrayList<>());
                 dtoList.add(dto);
             }
             psmt.close();
             rs.close();
-
-            for(ArticleDto list : dtoList){
-                list.setCommentList(getArticleComments(list.getId()));
+            for (ArticleDto list : dtoList) {
+                getArticleComments(list);
             }
         }catch (Exception e){
             System.out.println("all Error : " + e.getMessage());
@@ -117,29 +121,27 @@ public class ArticleDAO implements CrudInterface {
         return dtoList;
     }
 
-    public  List<CommentDto> getArticleComments(Long article_id){
-        List<CommentDto> list = new ArrayList<>();
+    private  void getArticleComments(ArticleDto dtoArticle) {
         PreparedStatement psmt = null;
         ResultSet rs = null;
-        try{
+        try {
             String sql = "SELECT * FROM comments WHERE article_id=?";
             psmt = conn.prepareStatement(sql);
-            psmt.setLong(1, article_id);
+            psmt.setLong(1, dtoArticle.getId());
             rs = psmt.executeQuery();
-            while(rs.next()){
+            while (rs.next()) {
                 CommentDto dto = new CommentDto();
                 dto.setCommentId(rs.getLong("comment_id"));
                 dto.setArticleId(rs.getLong("article_id"));
                 dto.setName(rs.getString("name"));
                 dto.setContent(rs.getString("content"));
-                list.add(dto);
+                dtoArticle.getCommentList().add(dto);
             }
             psmt.close();
             rs.close();
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println("allComment Error : " + e.getMessage());
         }
-        return list;
     }
 
     @Override
@@ -167,7 +169,8 @@ public class ArticleDAO implements CrudInterface {
             sql += "set content = ? ";
             sql += "WHERE comment_id = ?";
             psmt = conn.prepareStatement(sql);
-            psmt.setLong(1, comment.getCommentId());
+            psmt.setString(1, comment.getContent());
+            psmt.setLong(2, comment.getCommentId());
             psmt.executeUpdate();
             psmt.close();
         }catch (Exception e){

@@ -11,20 +11,20 @@ public class ArticleRepository implements CrudInterface {
     public static Long ariticlId = 1L;
     //  댓글 자동 증가 ID
     public static Long commentId = 1L;
-    private final List<ArticleDto> articles = new ArrayList<>();
+    static List<ArticleDto> articleList = new ArrayList<>() ;
 
     public ArticleRepository() {}
 
     @Override
     public void newArticle(ArticleDto dto) {
-        articles.add(dto);
+        articleList.add(dto);
     }
 
     @Override
     public ArticleDto detail(Long id) {
         ArticleDto result = null;
-        for(ArticleDto dto : articles){
-            if(dto.getId() == id) {
+        for(ArticleDto dto : articleList){
+            if(dto.getId().equals(id)) {
                 result = dto;
                 break;
             }
@@ -37,10 +37,10 @@ public class ArticleRepository implements CrudInterface {
     public boolean delete(Long id) {
         boolean result = false;
 
-        for(ArticleDto dto : articles){
-            if(dto.getId() == id) {
+        for(ArticleDto dto : articleList){
+            if(dto.getId().equals(id)) {
                 dto.getCommentList().clear();
-                articles.remove(dto);
+                articleList.remove(dto);
                 result = true;
                 break;
             }
@@ -50,16 +50,14 @@ public class ArticleRepository implements CrudInterface {
 
     @Override
     public List<ArticleDto> all() {
-        return articles;
+        return articleList;
     }
 
     @Override
     public void insertComment(CommentDto dtoComment) {
-        for(ArticleDto dto : articles){
-            if(dto.getId() == dtoComment.getArticleId()) {
-                dto.getCommentList().add(dtoComment);
-                break;
-            }
+        ArticleDto dto = detail(dtoComment.getArticleId());
+        if(dto != null) {
+            dto.getCommentList().add(dtoComment);
         }
     }
 
@@ -69,17 +67,12 @@ public class ArticleRepository implements CrudInterface {
 
     @Override
     public void deleteComment(Long ariticlId, Long deleteCommentId) {
-        List<CommentDto> list = null;
-        for(ArticleDto dto : articles){
-            if(dto.getId() == ariticlId) {
-                list = dto.getCommentList();
-                break;
-            }
-        }
-        if(list != null){
-            for(CommentDto dto : list){
-                if(dto.getCommentId() == deleteCommentId) {
-                    list.remove(dto);
+        ArticleDto dto = detail(ariticlId);
+        if(dto != null) {
+            List<CommentDto> list = dto.getCommentList();
+            for(CommentDto dtoComment : list) {
+                if(dtoComment.getCommentId().equals(deleteCommentId)) {
+                    list.remove(dtoComment);
                     break;
                 }
             }
@@ -88,6 +81,5 @@ public class ArticleRepository implements CrudInterface {
 
     @Override
     public void update(ArticleDto updateData) {
-
     }
 }

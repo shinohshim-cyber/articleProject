@@ -1,6 +1,7 @@
 package main;
 
 import crudInterface.CrudInterface;
+import dao.ArticleDAO;
 import db.DBConn;
 import repository.ArticleRepository;
 import service.ArticleService;
@@ -13,8 +14,8 @@ public class ArticleMain {
     public static void main(String[] args) {
 
         Scanner sc = new Scanner(System.in);
-        //CrudInterface repository = new ArticleDAO();
-         CrudInterface repository = new ArticleRepository(); // 메모리 버전
+        CrudInterface repository = new ArticleDAO();
+        // CrudInterface repository = new ArticleRepository(); // 메모리 버전
         ArticleService articleService = new ArticleService(repository);
         CommentService commentService = new CommentService(repository);
         ArticleView articleView = new ArticleView(sc, articleService, commentService);

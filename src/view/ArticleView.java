@@ -79,7 +79,7 @@ public class ArticleView {
                             commentId = sc.nextLong();
                             CommentDto oldComment = null;
                             for (CommentDto commentDto : commentDtoList) {
-                                if (commentDto.getCommentId() == commentId) {
+                                if (commentDto.getCommentId().equals(commentId)) {
                                     oldComment = commentDto;
                                     break;
                                 }
@@ -105,7 +105,7 @@ public class ArticleView {
                             commentId = sc.nextLong();
                             CommentDto oldComment = null;
                             for (CommentDto commentDto : commentDtoList) {
-                                if (commentDto.getCommentId() == commentId) {
+                                if (commentDto.getCommentId().equals(commentId)) {
                                     oldComment = commentDto;
                                     break;
                                 }
